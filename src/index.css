@@ -98,14 +98,6 @@
   @apply bg-white rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl border border-neutral-100;
 }
 
-.chat-message-ai {
-  @apply bg-accent text-foreground rounded-lg p-4 mb-4 max-w-3xl;
-}
-
-.chat-message-user {
-  @apply bg-primary text-primary-foreground rounded-lg p-4 mb-4 ml-auto max-w-3xl;
-}
-
 .scroll-container {
   scrollbar-width: thin;
   scrollbar-color: #CBD5E0 #F7FAFC;

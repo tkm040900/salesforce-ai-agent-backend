@@ -104,62 +104,70 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-5xl">
-      <Card className="shadow-lg border-t-4 border-t-primary">
-        <CardContent className="p-6">
-          <div className="flex flex-col h-[calc(100vh-280px)]">
-            {/* Chat History */}
-            <div className="flex-grow overflow-y-auto p-4 scroll-container">
-              {chatHistory.length === 0 && !loading ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <p>Start a conversation with the Salesforce AI agent.</p>
-                  <p className="text-sm mt-2">Try asking questions like:</p>
-                  <ul className="text-sm mt-1 space-y-1 text-primary">
-                    <li>"Show me the top 5 opportunities"</li>
-                    <li>"Create a new contact for John Doe"</li>
-                    <li>"Find accounts in California"</li>
-                  </ul>
+    <div className="flex flex-col h-screen bg-background">
+      {/* Chat Messages Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="max-w-4xl mx-auto">
+          {chatHistory.length === 0 && !loading ? (
+            <div className="text-center text-muted-foreground py-16">
+              <h2 className="text-2xl font-semibold mb-4">Welcome to Salesforce AI Assistant</h2>
+              <p className="text-lg mb-6">Start a conversation with the AI agent to interact with your Salesforce data.</p>
+              <div className="space-y-2">
+                <p className="text-sm">Try asking questions like:</p>
+                <div className="space-y-2 text-primary">
+                  <div className="bg-accent/50 rounded-lg p-3 text-sm">"Show me the top 5 opportunities"</div>
+                  <div className="bg-accent/50 rounded-lg p-3 text-sm">"Create a new contact for John Doe"</div>
+                  <div className="bg-accent/50 rounded-lg p-3 text-sm">"Find accounts in California"</div>
                 </div>
-              ) : (
-                chatHistory.map((message, index) => (
-                  <ChatMessage key={index} message={message} />
-                ))
-              )}
-              
-              {loading && (
-                <div className="flex items-center justify-center py-4">
-                  <div className="animate-pulse-slow text-center">
-                    <p className="text-muted-foreground">AI is thinking...</p>
-                  </div>
+              </div>
+            </div>
+          ) : (
+            chatHistory.map((message, index) => (
+              <ChatMessage key={index} message={message} />
+            ))
+          )}
+          
+          {loading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-pulse-slow text-center">
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
-              )}
-              
-              {/* Display retrieved data if available */}
-              {retrievedData && (
-                <DataTable data={retrievedData} description={dataDescription} />
-              )}
-              
-              <div ref={messagesEndRef} />
+                <p className="text-muted-foreground mt-2">AI is thinking...</p>
+              </div>
             </div>
-            
-            {/* Message Input */}
-            <div className="pt-4 border-t">
-              <form onSubmit={handleSendMessage} className="flex space-x-2">
-                <Input
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  placeholder="Ask the Salesforce AI agent..."
-                  disabled={loading}
-                  className="flex-grow"
-                />
-                <Button type="submit" disabled={loading || !userInput.trim()}>
-                  Send
-                </Button>
-              </form>
+          )}
+          
+          {/* Display retrieved data if available */}
+          {retrievedData && (
+            <div className="mt-6">
+              <DataTable data={retrievedData} description={dataDescription} />
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+      
+      {/* Message Input - Fixed at bottom */}
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-4xl mx-auto p-4">
+          <form onSubmit={handleSendMessage} className="flex space-x-3">
+            <Input
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              placeholder="Ask the Salesforce AI agent anything..."
+              disabled={loading}
+              className="flex-grow text-base"
+            />
+            <Button type="submit" disabled={loading || !userInput.trim()} size="lg">
+              Send
+            </Button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
