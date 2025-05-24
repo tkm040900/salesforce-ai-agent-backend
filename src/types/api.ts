@@ -1,4 +1,3 @@
-
 export interface SalesforceAuthRequest {
   instance_url?: string;
   access_token?: string;
@@ -28,8 +27,8 @@ export interface ChatRequest {
 
 export interface ChatHistoryResponse {
   history: Message[];
-  retrieved_data: any | null;
-  data_description: string | null;
+  latest_retrieved_data?: any;
+  latest_data_description?: string;
 }
 
 export interface SessionInfo {

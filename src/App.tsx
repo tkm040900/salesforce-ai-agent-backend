@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,8 +20,8 @@ const AppContent = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isChatPage && <Navbar />}
-      <main className={isChatPage ? "flex-grow" : "flex-grow"}>
+      <Navbar />
+      <main className={"flex-grow"}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />

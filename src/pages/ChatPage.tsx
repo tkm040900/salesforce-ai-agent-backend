@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
-import { sendChatMessage, getChatHistory } from "../services/api";
+import { sendChatMessage, getChatHistory, getSessionDataLog } from "../services/api";
 import { ChatHistoryResponse, Message } from "../types/api";
+import { SessionDataLogEntry, SessionDataLogResponse } from "../types/dataLog";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,10 @@ const ChatPage = () => {
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [retrievedData, setRetrievedData] = useState<any[] | null>(null);
   const [dataDescription, setDataDescription] = useState<string | null>(null);
+
+  const [sessionDataLog, setSessionDataLog] = useState<SessionDataLogEntry[]>([]);
+  const [showDataLog, setShowDataLog] = useState<boolean>(false);
+  const [dataLogLoading, setDataLogLoading] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -85,9 +89,12 @@ const ChatPage = () => {
       // Update with full chat history from response
       setChatHistory(response.history);
       
-      // Set any retrieved data
-      setRetrievedData(response.retrieved_data);
-      setDataDescription(response.data_description);
+      // Set any retrieved data (now latest_retrieved_data)
+      setRetrievedData(response.latest_retrieved_data || null);
+      setDataDescription(response.latest_data_description || null);
+      
+      // Clear previous session log display if new data comes in
+      setShowDataLog(false);
       
     } catch (error) {
       toast({
@@ -103,10 +110,47 @@ const ChatPage = () => {
     }
   };
 
+  const handleFetchDataLog = async () => {
+    if (!sessionInfo?.session_id) return;
+
+    // If already showing the log, just hide it without fetching
+    if (showDataLog) {
+      setShowDataLog(false);
+      return;
+    }
+
+    setDataLogLoading(true);
+    setShowDataLog(true); // Show the log section, possibly with a loading state inside
+    // Clear current "latest" data display when viewing full log, or decide UX for this
+    // setRetrievedData(null);
+    // setDataDescription(null);
+    try {
+      const response = await getSessionDataLog(sessionInfo.session_id);
+      setSessionDataLog(response.log);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Failed to load data log",
+        description: "Could not retrieve the history of fetched data.",
+      });
+      setShowDataLog(false); // Hide on error
+    } finally {
+      setDataLogLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background">
+      {/* Header or Navbar placeholder - can add a button here */}
+      <div className="p-4 border-b flex justify-between items-center">
+        <h1 className="text-xl font-semibold">Salesforce AI Chat</h1>
+        <Button onClick={handleFetchDataLog} variant="outline" disabled={dataLogLoading || loading}>
+          {dataLogLoading ? "Loading Log..." : showDataLog ? "Hide Data Log" : "View Data Log"}
+        </Button>
+      </div>
+
       {/* Chat Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
         <div className="max-w-4xl mx-auto">
           {chatHistory.length === 0 && !loading ? (
             <div className="text-center text-muted-foreground py-16">
@@ -141,9 +185,42 @@ const ChatPage = () => {
           )}
           
           {/* Display retrieved data if available */}
-          {retrievedData && (
+          {retrievedData && !showDataLog && (
             <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2 text-foreground">Latest Retrieved Data:</h3>
               <DataTable data={retrievedData} description={dataDescription} />
+            </div>
+          )}
+
+          {/* Display Session Data Log */}
+          {showDataLog && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2 text-foreground">Session Data Log:</h3>
+              {dataLogLoading && <p>Loading data log...</p>}
+              {!dataLogLoading && sessionDataLog.length === 0 && <p>No data has been retrieved in this session yet.</p>}
+              {!dataLogLoading && sessionDataLog.length > 0 && (
+                <div className="space-y-4">
+                  {sessionDataLog.map((logEntry) => (
+                    <Card key={logEntry.log_id}>
+                      <CardContent className="p-4">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Logged at: {new Date(logEntry.timestamp).toLocaleString()}
+                        </p>
+                        <p className="font-medium mb-2">{logEntry.description || "Retrieved Data"}</p>
+                        {/* Use DataTable or a similar component to display logEntry.data */}
+                        {/* For simplicity, showing stringified data. Replace with DataTable for structured view */}
+                        {logEntry.data && (
+                           Array.isArray(logEntry.data) ? (
+                            <DataTable data={logEntry.data} description={null} />
+                           ) : ( <pre className="bg-muted p-2 rounded-md text-xs overflow-auto">
+                            {JSON.stringify(logEntry.data, null, 2)}
+                          </pre> )
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           
