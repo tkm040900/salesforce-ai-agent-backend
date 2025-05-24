@@ -68,10 +68,6 @@ const ChatPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory]);
 
-  const handleNewSession = () => {
-    navigate("/auth");
-  };
-
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -161,7 +157,7 @@ const ChatPage = () => {
       <div className="min-h-screen flex w-full">
         <Sidebar className="border-r">
           <SidebarContent>
-            <ChatSidebar onNewSession={handleNewSession} />
+            <ChatSidebar />
           </SidebarContent>
         </Sidebar>
         
