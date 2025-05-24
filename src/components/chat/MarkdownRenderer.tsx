@@ -4,11 +4,13 @@ import remarkGfm from 'remark-gfm';
 
 interface MarkdownRendererProps {
   content: string;
+  className?: string;
 }
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+const MarkdownRenderer = ({ content, className = "" }: MarkdownRendererProps) => {
   return (
     <ReactMarkdown
+      className={className}
       remarkPlugins={[remarkGfm]}
       components={{
         // Customize heading styles
