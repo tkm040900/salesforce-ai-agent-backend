@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 const AuthPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setSessionInfo } = useSession();
+  const { addSession } = useSession();
 
   const [authData, setAuthData] = useState<SalesforceAuthRequest>({
     instance_url: "",
@@ -46,15 +46,22 @@ const AuthPage = () => {
 
       const response = await authenticateWithSalesforce(authData);
 
-      // Save session info
-      setSessionInfo({
+      // Extract organization name from instance URL or username for display
+      const organizationName = authData.instance_url.replace(/https?:\/\//, '').split('.')[0] || 
+                              authData.username.split('@')[1]?.split('.')[0] || 
+                              'Organization';
+
+      // Add new session
+      addSession({
         session_id: response.session_id,
         instance_url: response.instance_url,
+        organization_name: organizationName,
+        created_at: new Date().toISOString()
       });
 
       toast({
         title: "Authentication successful",
-        description: "You are now connected to Salesforce",
+        description: `New session created for ${organizationName}`,
       });
 
       // Redirect to chat page
@@ -76,7 +83,7 @@ const AuthPage = () => {
         <CardHeader>
           <CardTitle className="text-2xl">Connect to Salesforce</CardTitle>
           <CardDescription>
-            Enter your Salesforce credentials to get started
+            Create a new chat session with your Salesforce organization
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -148,7 +155,7 @@ const AuthPage = () => {
               type="submit" 
               disabled={isLoading}
             >
-              {isLoading ? "Connecting..." : "Connect to Salesforce"}
+              {isLoading ? "Connecting..." : "Create New Session"}
             </Button>
           </CardFooter>
         </form>

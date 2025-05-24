@@ -1,3 +1,4 @@
+
 export interface SalesforceAuthRequest {
   instance_url?: string;
   access_token?: string;
@@ -34,4 +35,6 @@ export interface ChatHistoryResponse {
 export interface SessionInfo {
   session_id: string;
   instance_url: string;
+  organization_name?: string;
+  created_at: string;
 }

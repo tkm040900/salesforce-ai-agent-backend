@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  const { isAuthenticated, clearSession } = useSession();
+  const { isAuthenticated, clearAllSessions, sessions } = useSession();
 
   return (
     <nav className="bg-white shadow-sm py-4">
@@ -18,13 +18,20 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <Link to="/chat">
-                <Button variant="outline">Chat Interface</Button>
+                <Button variant="outline">
+                  Chat Interface {sessions.length > 0 && `(${sessions.length})`}
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button variant="secondary">
+                  New Session
+                </Button>
               </Link>
               <Button 
                 variant="destructive" 
-                onClick={clearSession}
+                onClick={clearAllSessions}
               >
-                Logout
+                Clear All Sessions
               </Button>
             </>
           ) : (
