@@ -14,6 +14,7 @@ import DataTable from "../components/ui/data-table";
 const ChatPage = () => {
   const navigate = useNavigate();
   const { sessionInfo, isAuthenticated } = useSession();
+  
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(false);
